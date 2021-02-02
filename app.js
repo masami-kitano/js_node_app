@@ -1,20 +1,17 @@
-const express = require("express");
+const express = require('express');
 const app = express();
+const userController = require('./controllers/UserController');
 
 app.use(express.static('public'));
 
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 
-app.get("/", (req, res) => {
+app.get('/', (req, res) => {
     res.render('index');
 });
 
-app.get('/login', (req, res) => {
-    res.render('login.ejs');
-});
+app.get('/login', userController.doGetLogin);
 
-app.get('/register', (req, res) => {
-    res.render('register.ejs');
-});
+app.get('/register', userController.doGetRegister);
 
 app.listen(3000);
