@@ -8,9 +8,12 @@ const express = require('express'),
     expressSession = require('express-session'),
     cookieParser = require('cookie-parser'),
     connectFlash = require('connect-flash'),
+    expressValidator = require('express-validator'),
+    passport = require('passport'),
     errorController = require('./controllers/errorController'),
     homeController = require('./controllers/homeController'),
-    usersController = require('./controllers/usersController');
+    usersController = require('./controllers/usersController'),
+    User = require('./models/user');
 
 mongoose.Promise = global.Promise;
 
@@ -47,22 +50,29 @@ router.use(
     saveUninitialized: false
   })
 );
+router.use(passport.initialize());
+router.use(passport.session());
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 router.use(connectFlash());
 
 router.use((req, res, next) => {
+  res.locals.loggedIn = req.isAuthenticated();
+  res.locals.currentUser = req.user;
   res.locals.flashMessages = req.flash();
   next();
 });
-
+router.use(expressValidator());
 router.use(homeController.logRequestPaths);
 
 router.get('/', homeController.index);
 
-router.get('/users', usersController.index, usersController.indexView);
 router.get('/users/new', usersController.new);
-router.post('/users/create', usersController.create, usersController.redirectView);
+router.post('/users/create', usersController.validate, usersController.create, usersController.redirectView);
 router.get('/users/login', usersController.login);
-router.post('/users/login', usersController.authenticate, usersController.redirectView);
+router.post('/users/login', usersController.authenticate);
 
 router.use(errorController.logErrors);
 router.use(errorController.respondNoResourceFound);

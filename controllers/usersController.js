@@ -1,44 +1,34 @@
 'use strict';
 
-const User = require('../models/user');
+const User = require('../models/user'),
+    passport = require('passport'),
+    getUserParams = body => {
+        return {
+            name: body.name,
+            email: body.email,
+            password: body.password,
+            confirmPassword: body.confirmPassword
+        };
+    };
 
 module.exports = {
-    index: (req, res, next) => {
-      User.find()
-        .then(users => {
-          res.locals.users = users;
-          next();
-        })
-        .catch(error => {
-          console.log(`Error fetching users: ${error.message}`);
-          next(error);
-        });
-    },
-    indexView: (req, res) => {
-      res.render('users/index');
-    },
     new: (req, res) => {
         res.render('users/new');
     },
     create: (req, res, next) => {
-        let userParams = {
-            name: req.body.name,
-            email: req.body.email,
-            password: req.body.password,
-        };
-        User.create(userParams)
-            .then(user => {
+        if (req.skip) return next();
+        let newUser = new User(getUserParams(req.body));
+        User.register(newUser, req.body.password, (error, user) => {
+            if (user) {
                 req.flash('success', `${user.name}さんのアカウントを作成しました！`);
                 res.locals.redirect = '/';
-                res.locals.user = user;
                 next();
-            })
-            .catch(error => {
-                console.log(`Error saving user: ${error.message}`);
-                res.locals.redirect = '/users/new';
+            } else {
                 req.flash('error', `アカウントの作成に失敗しました。${error.message}`);
+                res.locals.redirect = '/users/new';
                 next();
-            });
+            }
+        });
     },
     redirectView: (req, res, next) => {
         let redirectPath = res.locals.redirect;
@@ -46,30 +36,43 @@ module.exports = {
         else next();
     },
     login: (req, res) => {
-      res.render('users/login');
+        res.render('users/login');
     },
-    authenticate: (req, res, next) => {
-      User.findOne({
-        email: req.body.email
-      })
-        .then(user => {
-          if (user && user.password === req.body.password) {
-            res.locals.redirect = '/';
-            req.flash('success', `${user.name}さん ログインに成功しました！`);
-            res.locals.user = user;
-            next();
-          } else {
-            req.flash(
-              'error',
-              'メールアドレスまたはパスワードに誤りがあります。'
-            );
-            res.locals.redirect = '/users/login';
-            next();
-          }
-        })
-        .catch(error => {
-          console.log(`Error logging in user: ${error.message}`);
-          next(error);
+    authenticate: passport.authenticate('local', {
+        failureRedirect: '/users/login',
+        failureFlash: 'ログインに失敗しました。',
+        successRedirect: '/',
+        successFlash: 'ログインに成功しました！'
+    }),
+    validate: (req, res, next) => {
+        req
+            .sanitizeBody('email')
+            .normalizeEmail({
+                all_lowercase: true
+            })
+            .trim();
+        req
+            .check('name', '名前は必須項目です。')
+            .notEmpty()
+        req
+            .check('email', 'メールアドレスが正しくありません。')
+            .isEmail();
+        req
+            .check('password', 'パスワードは7文字以上で設定してください。')
+            .notEmpty()
+            .isLength({
+              min: 7
+            });
+        req.getValidationResult().then(error => {
+            if (!error.isEmpty()) {
+                let messages = error.array().map(e => e.msg);
+                req.skip = true;
+                req.flash('error', messages.join(' '));
+                res.locals.redirect = '/users/new';
+                next();
+            } else {
+                next();
+            }
         });
     }
 }

@@ -14,8 +14,13 @@
             <h1><a href="/">NodeApp</a></h1>
             <nav>
                 <ul>
-                    <li><a href="/users/login">Login</a></li>
-                    <li><a href="/users/new">Register</a></li>
+                    <% if (loggedIn) { %>
+                        <li><a href="<%=`/users/${currentUser._id}`%>"><%= currentUser.name %></a></li>
+                        <li><a href="/users/logout">Logout</a></li>
+                    <%} else {%>
+                        <li><a href="/users/login">Login</a></li>
+                        <li><a href="/users/new">Register</a></li>
+                    <% } %>  
                 </ul>
             </nav>
         </div>
