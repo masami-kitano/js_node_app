@@ -469,6 +469,11 @@ body {
   color: #333;
 }
 
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 .header {
   position: fixed;
   width: 100%;
@@ -510,11 +515,11 @@ main {
   background: #f6f6f6;
 }
 
-main.top {
+.top {
   padding-top: 10.625rem;
 }
 
-main.top h2 {
+.top h2 {
   text-align: center;
   font-size: 1.875rem;
 }
@@ -587,5 +592,12 @@ main.top h2 {
 
 .forgot-pass:hover {
   text-decoration: underline;
+}
+
+.flash {
+  max-width: 37.5rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  text-align: center;
 }
 /*# sourceMappingURL=style.css.map */
