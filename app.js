@@ -1,19 +1,19 @@
 'use strict';
 
-const express = require('express'),
-    app = express(),
-    router = express.Router(),
-    layouts = require('express-ejs-layouts'),
-    mongoose = require('mongoose'),
-    expressSession = require('express-session'),
-    cookieParser = require('cookie-parser'),
-    connectFlash = require('connect-flash'),
-    expressValidator = require('express-validator'),
-    passport = require('passport'),
-    errorController = require('./controllers/errorController'),
-    homeController = require('./controllers/homeController'),
-    usersController = require('./controllers/usersController'),
-    User = require('./models/user');
+const express = require('express');
+const app = express();
+const router = express.Router();
+const layouts = require('express-ejs-layouts');
+const mongoose = require('mongoose');
+const expressSession = require('express-session');
+const cookieParser = require('cookie-parser');
+const connectFlash = require('connect-flash');
+const expressValidator = require('express-validator');
+const passport = require('passport');
+const errorController = require('./controllers/errorController');
+const homeController = require('./controllers/homeController');
+const usersController = require('./controllers/usersController');
+const User = require('./models/user');
 
 mongoose.Promise = global.Promise;
 

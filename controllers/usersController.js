@@ -1,7 +1,7 @@
 'use strict';
 
-const User = require('../models/user'),
-    passport = require('passport'),
+const User = require('../models/user');
+const passport = require('passport'),
     getUserParams = body => {
         return {
             name: body.name,
@@ -17,7 +17,7 @@ module.exports = {
     },
     create: (req, res, next) => {
         if (req.skip) return next();
-        let newUser = new User(getUserParams(req.body));
+        const newUser = new User(getUserParams(req.body));
         User.register(newUser, req.body.password, (error, user) => {
             if (user) {
                 req.flash('success', `${user.name}さんのアカウントを作成しました！`);
@@ -31,7 +31,7 @@ module.exports = {
         });
     },
     redirectView: (req, res, next) => {
-        let redirectPath = res.locals.redirect;
+        const redirectPath = res.locals.redirect;
         if (redirectPath) res.redirect(redirectPath);
         else next();
     },
@@ -65,7 +65,7 @@ module.exports = {
             });
         req.getValidationResult().then(error => {
             if (!error.isEmpty()) {
-                let messages = error.array().map(e => e.msg);
+                const messages = error.array().map(e => e.msg);
                 req.skip = true;
                 req.flash('error', messages.join(' '));
                 res.locals.redirect = '/users/new';

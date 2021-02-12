@@ -25,7 +25,7 @@ const mongoose = require('mongoose'),
     });
 
 userSchema.pre('save', function(next) {
-    let user = this;
+    const user = this;
     bcrypt
         .hash(user.password, 10)
         .then(hash => {
